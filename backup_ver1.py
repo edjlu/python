@@ -1,22 +1,19 @@
 import os
 import time
+import zipfile
 
-source = ['C:\\Documents']
+source = r'C:\Users\Edmund\Documents\code'
 
-target_dir = ['C:\\Documents']
+target_dir = r'C:\Users\Edmund\backup'
 
-target = target_dir + os.sep + \
-         time.strftime('%Y%m%d%H%M%S') + '.zip'
+target = target_dir + os.sep + time.strftime('%Y-%m-%d_%H_%M_%S') + '.zip'
 
 if not os.path.exists(target_dir):
     os.mkdir(target_dir) #make directory
 
-zip_command = 'zip -r {0} {1}'.format(target,
-                                    ' '.join(source))
-print('Zip command is:')
-print(zip_command)
-print('Running:')
-if os.system(zip_command) == 0:
-    print('Successful backup to', target)
-else:
-    print('Backup FAILED')
+with zipfile.ZipFile(target, 'w') as zipf:
+    for dirpath, dirnames, filenames in os.walk(source):
+        arcpath = dirpath[len(source)+1:].replace('\\', '/')
+        for filename in filenames:
+            arcname = os.path.join(arcpath, filename)
+            zipf.write(os.path.join(dirpath, filename), arcname)
